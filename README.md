@@ -1,6 +1,4 @@
 # Digital_Magazine_Publishing_CMS
-
-## Overview
 This project implements a complete backend **Content Management System (CMS)** for publishing digital magazines using **only MySQL**. It manages magazines, articles, media, authors, categories, and user roles, and supports workflows and content analytics.
 
 Designed as part of the **DevifyX Assignment**, this project is implemented entirely through SQL scripts including schema definition, data insertion, stored procedures, triggers, views, and events.
