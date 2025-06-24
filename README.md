@@ -71,7 +71,7 @@ SOURCE procedures_views.sql;
 SET GLOBAL event_scheduler = ON;
 ```
 **Note:** This step is necessary for MySQL to execute scheduled events (like auto-publishing).
-### Step 4: Try Core Functionalities 
+### Step 5: Try Core Functionalities 
 - Publish an Article
 ```sql
 CALL PublishArticle(2, 1);
@@ -92,7 +92,7 @@ See article title, author, magazine, category for published articles.
 SELECT * FROM CommentDetails;
 ```
 View comments with article titles and usernames, including moderation status.
-### Step 5: Test Automatic Publishing
+### Step 6: Test Automatic Publishing
 To test scheduled publishing:
 - Insert an article with:
 1. status = 'draft' <BR>
@@ -102,7 +102,7 @@ To test scheduled publishing:
 SELECT * FROM Articles WHERE status = 'published';
 ```
 The scheduled event will automatically publish it if the date has passed.
-### Step 6: Optional Enhancements
+### Step 7: Optional Enhancements
 You can implement and test:
 - Additional procedures: **AddComment()**, **AssignAuthor()**
 - More views: **AuthorWiseArticles**, **MonthlyArticleStats**
