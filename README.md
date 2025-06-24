@@ -1,113 +1,147 @@
-# Digital_Magazine_Publishing_CMS
-This project implements a complete backend **Content Management System (CMS)** for publishing digital magazines using **only MySQL**. It manages magazines, articles, media, authors, categories, and user roles, and supports workflows and content analytics.
 
-Designed as part of the **DevifyX Assignment**, this project is implemented entirely through SQL scripts including schema definition, data insertion, stored procedures, triggers, views, and events.
+# Digital_Magazine_Publishing_CMS
+
+This project implements a full-featured backend **Content Management System (CMS)** for publishing digital magazines using **pure MySQL**. It supports rich functionalities like content publishing workflows, role-based permissions, media management, analytics, and moderation.
+
+Designed as part of the **DevifyX Assignment**, the system is built entirely using SQL — including schema definitions, sample data, stored procedures, triggers, views, and scheduled events.
 
 ---
 
-## Features
+## Features Implemented
 
-### Core Features
-- **Magazine Management**: Create, update, archive issues with metadata
-- **Article Management**: Link articles to magazines, authors, categories
-- **Media Management**: Associate images, PDFs, videos with articles
-- **Author Management**: Maintain author bios and assignments
-- **Category & Tagging**: Organize articles using categories and multiple tags
-- **Publication Workflow**: Draft, review, publish, and archive articles
-- **User Roles & Permissions**: Roles like admin, editor, author, viewer
-- **Audit Trail**: Logs actions with user, entity, and timestamp
+### Core Functionalities
+
+- **Magazine Management**
+  - Create, update, and archive magazine issues
+  - Metadata: title, issue number, publication date, and status
+  - Includes audit logging
+
+- **Article Management**
+  - Link articles to specific magazines, authors, categories
+  - Add, update, and delete articles with stored procedures
+  - Status-based workflow: draft → under review → published → archived
+
+- **Media Management**
+  - Associate media (images, videos, PDFs) with articles
+
+- **Author Management**
+  - Manage author profiles and assign articles to authors
+
+- **Category & Tagging System**
+  - Categorize articles and allow multiple tags per article
+
+- **Publication Workflow**
+  - Track article statuses and transitions
+  - Audit trail logs all significant changes
+
+- **User Roles & Permissions**
+  - Supports roles: admin, editor, author, moderator, viewer
+  - Role checks enforced via stored procedures
+
+- **Audit Trail**
+  - Logs user actions on articles, magazines, and comments with timestamps
+
+---
 
 ### Bonus Features
-- **Full-Text Search**: Search articles and magazines by title and content
-- **Scheduled Publishing**: Articles can auto-publish at a scheduled date/time
-- **Statistics**: Track article views and downloads
-- **Comments**: Readers can leave moderated comments on articles
+
+- **Full-Text Search**
+  - Search articles (`title`, `content`) and magazines (`title`) using MySQL full-text indexes
+
+- **Scheduled Publishing**
+  - Auto-publish articles using scheduled `DATETIME` and MySQL `EVENT`
+
+- **Statistics Tracking**
+  - Track article `views` and `downloads`
+  - Views: `TopViewedArticles`, `ArticlesByDownloads`
+  - Procedures: `IncrementArticleView`, `IncrementArticleDownload`
+
+- **Comment System with Moderation**
+  - Readers can submit comments on articles
+  - Admins/Moderators can approve or reject via `ModerateComment` procedure
 
 ---
 
 ## Setup Instructions
+
 ### STEP 1: Set Up MySQL Environment
+
 You can use:
-- MySQL Workbench (GUI)
-- Terminal/Command Line with mysql
-- XAMPP/LAMP/MAMP stack
-- VS Code with MySQL extension
-  
+- MySQL Workbench
+- MySQL CLI / Terminal
+- XAMPP / MAMP / LAMP stack
+- VS Code with SQL extension
+
 ### STEP 2: Create Database
+
 ```sql
 CREATE DATABASE digital_magazine_cms;
 USE digital_magazine_cms;
 ```
-### STEP 3: Run SQL Scripts
-#### 1. Schema Setup (**schema.sql**)
-This script defines the database structure:
-- Users, Roles
-- Articles, Magazines, Authors
-- Media, Tags, Comments
-- AuditTrail and Stats tables
-#### 2. Insert Sample Data (**sample_data.sql**)
-Populates the database with:
-- Sample magazines, articles, authors
-- Tags, media, comments
-- Users with roles like **admin**, **author**, etc.
-Also includes pre-configured triggers (e.g., for auditing article status)
-#### 3. Procedures, Views & Events (**procedures_views.sql**)
-Implements:
-- Stored Procedures like **PublishArticle**
-- Triggers to track article status changes
-- Views like **PublishedArticlesSummary**
-- Scheduled Events to auto-publish articles
 
-#### Run scripts in this order:
+### STEP 3: Run SQL Scripts
+
+#### 1. Schema Setup (`schema.sql`)
+Defines all required tables and relations.
+
+#### 2. Sample Data (`sample_data.sql`)
+Inserts sample users, roles, articles, magazines, authors, media, tags, stats, and comments.
+
+#### 3. Procedures, Views, Triggers (`procedures_views.sql`)
+Implements all business logic, auditing, moderation, statistics, and scheduled events.
+
 ```sql
 SOURCE schema.sql;
 SOURCE sample_data.sql;
 SOURCE procedures_views.sql;
 ```
-### STEP 4: Enable Event Scheduler (Required for Scheduled Publishing)
+
+### STEP 4: Enable Event Scheduler (for scheduled publishing)
+
 ```sql
 SET GLOBAL event_scheduler = ON;
 ```
-**Note:** This step is necessary for MySQL to execute scheduled events (like auto-publishing).
-### Step 5: Try Core Functionalities 
-- Publish an Article
+
+---
+
+## How to Use
+
+- **Publish an Article**
 ```sql
-CALL PublishArticle(2, 1);
+CALL PublishArticle(2, 1);  -- Publish article ID 2 by user ID 1 (admin)
 ```
-Publishes article with ID 2 and logs it under user ID 1 (admin).
-- Perform Full-Text Search
+
+- **Moderate a Comment**
+```sql
+CALL ModerateComment(8, 'approved', 6);  -- Approve comment ID 8 by moderator ID 6
+```
+
+- **Full-Text Search**
 ```sql
 SELECT * FROM Articles WHERE MATCH(title, content) AGAINST ('Quantum' IN NATURAL LANGUAGE MODE);
+SELECT * FROM Magazines WHERE MATCH(title) AGAINST ('TechX' IN BOOLEAN MODE);
 ```
-Searches articles for keywords like “Quantum”.
-- View All Published Articles
+
+- **Top Viewed Articles**
 ```sql
-SELECT * FROM PublishedArticlesSummary;
+SELECT * FROM TopViewedArticles;
 ```
-See article title, author, magazine, category for published articles.
-- Check Article Comments
-```sql
-SELECT * FROM CommentDetails;
-```
-View comments with article titles and usernames, including moderation status.
-### Step 6: Test Automatic Publishing
-To test scheduled publishing:
-- Insert an article with:
-1. status = 'draft' <BR>
-2. scheduled_date set in the near future (e.g., NOW() + INTERVAL 1 MINUTE)
-- Wait and re-run:
+
+- **Auto-Publishing Test**
+  - Insert article with status = 'draft' and `scheduled_date` = NOW() + INTERVAL 1 MINUTE
+  - Wait 1–2 mins and run:
 ```sql
 SELECT * FROM Articles WHERE status = 'published';
 ```
-The scheduled event will automatically publish it if the date has passed.
-### Step 7: Optional Enhancements
-You can implement and test:
-- Additional procedures: **AddComment()**, **AssignAuthor()**
-- More views: **AuthorWiseArticles**, **MonthlyArticleStats**
-- Complex triggers: Track media additions or deletions
-- Analytics queries: Top-viewed articles, category-wise count
 
-**👩‍💻 Author** <br>
-Rishika Jain <br>
-(Computer Science Engineer) <br>
-rishika.jn191@gmail.com <br>
+---
+
+## 👩‍💻 Author
+
+**Rishika Jain**  \  
+Computer Science Engineer  \  
+📧 rishika.jn191@gmail.com
+
+---
+
+All features tested and verified using the latest MySQL 8.x environment.
